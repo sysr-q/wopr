@@ -58,31 +58,32 @@ class Sparkline(Widget):
 
 		buffer = 20
 		data_buffer = 3
-		data = list(self.data)[-((maxX-2-(buffer+data_buffer))*2):]  # only get the data we can plot
+		# We can only fix (x*2) points of data. Also account for buffers etc.
+		data = list(self.data)[-((maxX-2-(buffer+data_buffer))*2):]
 
 		self.canvas.clear()
 		self.axes.clear()
 
-		# left axis
 		self.axes.set(0, 0)
-		for y in range(buffer, (maxY)*4 - buffer):
+		for y in range(buffer, (maxY)*4 - buffer):  # left axes
 			self.axes.set(buffer, y)
-		# bottom axis
-		for x in range(buffer, (maxX)*2 - buffer):
+		for x in range(buffer, (maxX)*2 - buffer):  # bottom axes
+			# (maxY*4)-buffer is (maxY*8)/2 for the edge.
 			self.axes.set(x, (maxY)*4 - buffer)
 
 		self.canvas.set(0, 0)
 		for i, point in enumerate(data):
-			# point is a y location
+			# (maxY*2) is the average for the widget's center point.
 			self.canvas.set(i+buffer+data_buffer, ((maxY*4) / 2) + point)
 
 		self.draw_canvas(self.canvas, attr=curses.color_pair(2))
-		self.draw_canvas(self.axes, attr=curses.color_pair(1))
+		self.draw_canvas(self.axes, attr=curses.color_pair(0))
 
 	def add_point(self, y):
 		self.data.append(y)
 
 class RandomSparkline(Sparkline):
 	def draw(self):
-		self.add_point(self.data[-1] + random.choice([1, 0, 0, -1]))
+		p = self.data[-1] + random.choice([1, 0, 0, -1])
+		self.add_point(p if p > 0 else 0)
 		super(RandomSparkline, self).draw()
