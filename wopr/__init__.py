@@ -10,21 +10,21 @@ locale.setlocale(locale.LC_ALL, "")
 code = locale.getpreferredencoding()
 
 def main(stdscr):
-	w = RandomSparkline(stdscr, [0]*1024, enc=code)
 	y, x = stdscr.getmaxyx()
+	curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+	curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+	curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
+	curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
+	curses.init_pair(5, curses.COLOR_BLUE, curses.COLOR_BLACK)
+	w = RandomSparkline(stdscr, [0]*1024, enc=code, name="Sparkline Test")
 
 	while True:
-		w.paint()
-
 		c = stdscr.getch(0, 0)
+		w.paint()
 
 		if c == ord('q'):
 			break
 		elif c == curses.KEY_RESIZE:
 			y, x = stdscr.getmaxyx()
-			continue
-
-		stdscr.refresh()
-		stdscr.move(0, 0)
 
 		time.sleep(30000/1e6)
