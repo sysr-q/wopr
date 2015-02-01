@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import math
-from .widget import (Sparkline)
+from wopr.widget import Sparkline
+from wopr.test import main_loop
 
 
 class SineSparkline(Sparkline):
@@ -16,3 +17,7 @@ class SineSparkline(Sparkline):
 
 		self.add_point(p if p > 0 else 0)
 		super(SineSparkline, self).draw(mx, my)
+
+
+if __name__ == "__main__":
+	main_loop(SineSparkline, [0]*1024, name="Sine Sparkline")
