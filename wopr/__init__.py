@@ -3,11 +3,11 @@ from __future__ import print_function
 import curses
 import locale
 import time
-from .widget import * #Widget, Sparkline
-
+from .examples import *
 
 locale.setlocale(locale.LC_ALL, "")
 code = locale.getpreferredencoding()
+
 
 def main(stdscr):
 	y, x = stdscr.getmaxyx()
@@ -16,7 +16,7 @@ def main(stdscr):
 	curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
 	curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
 	curses.init_pair(5, curses.COLOR_BLUE, curses.COLOR_BLACK)
-	w = RandomSparkline(stdscr, [0]*1024, enc=code, name="Sparkline Test")
+	w = SineSparkline(stdscr, [0]*1024, enc=code, name="Sine Sparkline")
 
 	while True:
 		c = stdscr.getch(0, 0)

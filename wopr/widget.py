@@ -3,9 +3,9 @@ from __future__ import print_function
 import collections
 import curses
 import math
-import random
 from drawille import Canvas, line
 import q
+
 
 class Widget(object):
 	def __init__(self, scr, enc="utf-8", name="Widget"):
@@ -63,7 +63,7 @@ class Sparkline(Widget):
 		# Shamelessly lifted from the Arduino project.
 		if in_max == 0:
 			return 0
-		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+		return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 	def draw(self, mx, my):  # Just warning you, this code is absolute trash.
 		# NOTE: We can only show at most (x*2) data points because of how the
@@ -72,31 +72,32 @@ class Sparkline(Widget):
 		#       the axis edges, as well as buffering the data some more.
 		data = list(self.data)[-((mx-2-(self.edge_buffer+self.data_buffer))*2):]
 
-		max_point = max(data)
+		max_point = float(max(data))
 		# Round our vertical axes up to the nearest five. This just looks nicer.
-		max_axes = int(math.ceil(max_point / float(self.rounding))) * self.rounding
+		max_axes = int(math.ceil(max_point / self.rounding)) * self.rounding
 		# max_points represents the "100%" mark for our y-axis. i.e. top.
 		max_points = (my*4) - self.edge_buffer*2 - self.data_buffer*2
 
 		self.canvas.clear()
 		self.axes.clear()
 
-		## Draw axes
+		# Draw axes
 		self.axes.set(0, 0)  # TODO: why do I need this hack?
-		self.scr.addstr(1, 1, "max_axes=%d max_point=%d max_points=%d" % (max_axes, max_point, max_points))
+		sf = "max_axes=%d max_point=%d max_points=%d fill=%s"
+		self.scr.addstr(1, 1, sf % (max_axes, max_point, max_points, self.fill))
 		for y in range(self.edge_buffer, (my)*4 - self.edge_buffer):  # left axes
 			self.axes.set(self.edge_buffer, y)
 		for x in range(self.edge_buffer, (mx)*2 - self.edge_buffer):  # bottom axes
 			# (my*4) is (my*8)/2 for the edge.
 			self.axes.set(x, (my)*4 - self.edge_buffer)
 
-		## Draw data on "main" canvas.
+		# Draw data on "main" canvas.
 		self.canvas.set(0, 0)  # TODO
 		lx, ly = -1, -1
 		for i, point in enumerate(data):
 			x = i-self.edge_buffer+self.data_buffer
 			# 0 -> 0%, max_point -> 100%
-			mapped = int(self.map(float(point), 0.0, float(max_point), 0.0, float(max_points)))
+			mapped = self.map(float(point), 0.0, max_point, 0.0, float(max_points))
 			# account for edges and stuff, my*8/2 etc.
 			y = (my*4) - self.edge_buffer - self.data_buffer - mapped
 			self.canvas.set(x, y)
@@ -119,16 +120,3 @@ class Sparkline(Widget):
 
 	def add_point(self, y):
 		self.data.append(y)
-
-class RandomSparkline(Sparkline):
-	def __init__(self, *args, **kwargs):
-		super(RandomSparkline, self).__init__(*args, **kwargs)
-		self.i = 0
-		self.height = 20
-
-	def draw(self, mx, my):
-		p = math.sin(math.radians(self.i)) * self.height + self.height
-		self.i += 2
-
-		self.add_point(p if p > 0 else 0)
-		super(RandomSparkline, self).draw(mx, my)
