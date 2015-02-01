@@ -5,7 +5,6 @@ import curses
 import math
 import random
 from drawille import Canvas, line
-import q
 
 
 class Widget(object):
@@ -22,6 +21,7 @@ class Widget(object):
 		self.scr = scr
 		self.enc = enc
 		self.name = name
+		self.dirty = True
 		self.setup()
 
 	def setup(self):
@@ -29,6 +29,9 @@ class Widget(object):
 		self.scr.leaveok(0)
 
 	def paint(self):
+		if not self.dirty:
+			return
+
 		self.scr.erase()
 		my, mx = self.scr.getmaxyx()
 
@@ -144,6 +147,10 @@ class Sparkline(Widget):
 			lx, ly = x, y
 
 	def draw(self, mx, my):  # Just warning you, this code is absolute trash.
+		if not any(map(lambda c: c["dirty"], self.canvases.values())):
+			# Nothing dirty here, just skip.
+			self.dirty = False
+			return
 
 		# TODO debugging trash
 		#sf = "max_axes=%d max_point=%d max_points=%d fill=%s"

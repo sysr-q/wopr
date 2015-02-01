@@ -27,8 +27,8 @@ def main_loop(cls, *args, **kwargs):
 			if c == ord('q'):
 				break
 			elif c == curses.KEY_RESIZE:
-				# y, x = stdscr.getmaxyx()
-				pass
+				w.dirty = True
 
-			time.sleep(30000/1e6)
+			# time.sleep(30000/1e6)
+			time.sleep(0.05)
 	curses.wrapper(inner)
